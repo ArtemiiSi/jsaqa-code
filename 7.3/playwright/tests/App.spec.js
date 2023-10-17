@@ -1,34 +1,29 @@
-const { test, expect, chromium } = require("@playwright/test");
-const { title } = require("process");
+const { test, expect, } = require("@playwright/test");
 const user = require("../user");
 
 test("test", async ({ page }) => {
-  const browser = await chromium.launch({
-    headless: false,
-  });
-  await page.goto("https://netology.ru/?modal=sign_in");
-  await page.locator('[placeholder="Email"]').click();
-  await page.locator('[placeholder="Email"]').fill(user.email);
-  await page.locator('[placeholder="Пароль"]').click();
-  await page.locator('[placeholder="Пароль"]').fill(user.password);
-  await page.locator('[data-testid="login-submit-btn"]').click();
+  
+  await page.goto("https://netology.ru/?modal=sign_in", {timeout:120000});
+  await page.getByPlaceholder('Email').click();
+  await page.getByPlaceholder('Email').fill(user.email);
+  await page.getByPlaceholder('Пароль').click();
+  await page.getByPlaceholder('Пароль').fill(user.password);
+  await page.getByTestId('login-submit-btn').click();
   await page.waitForURL("https://netology.ru/");
+  const title = page.locator('h2');
+  await expect(title).toHaveText("Моё обучение");
   await page.screenshot({ path: "screenshot.png" });
-  const header = await page.locator("h2").first();
-  await expect(header).toHaveText("Моё обучение");
-  await browser.close();
 });
 
 test("not a valid test", async ({ page }) => {
-  const browser = await chromium.launch({
-    headless: false,
-  });
-  await page.goto("https://netology.ru/?modal=sign_in");
-  await page.locator('[placeholder="Email"]').click();
-  await page.locator('[placeholder="Email"]').fill(user.incorrectEmail);
-  await page.locator('[placeholder="Пароль"]').click();
-  await page.locator('[placeholder="Пароль"]').fill(user.incorrectPassword);
-  await page.locator('[data-testid="login-submit-btn"]').click();
+  
+  await page.goto("https://netology.ru/?modal=sign_in", {timeout:120000});
+  await page.getByPlaceholder('Email').click();
+  await page.getByPlaceholder('Email').fill(user.incorrectEmail);
+  await page.getByPlaceholder('Пароль').click();
+  await page.getByPlaceholder('Пароль').fill(user.incorrectPassword);
+  await page.getByTestId('login-submit-btn').click();
+  const title = page.getByTestId('login-error-hint');
+  await expect(title).toHaveText("Вы ввели неправильно логин или пароль");
   await page.screenshot({ path: "screenshotError.png" });
-  await browser.close();
 });
